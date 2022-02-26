@@ -1,4 +1,19 @@
+import axios, { AxiosResponse } from 'axios'
+import { useEffect } from 'react'
+import HttpClient from '../../services/HttpClient'
+
 function Home () {
+
+  useEffect(() => {
+    request()
+  }, [3])
+
+  async function request  ()  {
+    const req = new HttpClient();
+    const foo = await req.getRequest('programathor/list-jobs');
+    console.log(foo)
+  } 
+
   return (
     <main className="container-fluid mycover">
       <section className="jumbotron">
@@ -11,6 +26,9 @@ function Home () {
       </section>
 
       <section>
+        <div style={{margin: '30px'}}>
+          <h1 className='text-center'> Vagas </h1>
+        </div>
         <section className="container-fluid">
           <div className="row">
             <div className="col-sm-6">
