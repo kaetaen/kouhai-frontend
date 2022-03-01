@@ -1,21 +1,103 @@
 import axios, { AxiosResponse } from 'axios'
-import { useEffect } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import HttpClient from '../../services/HttpClient'
+import { IData, IJobs, JobsList } from '../../types'
+
+function Modal () {
+  return (
+    <div className="text-center text-success" style={{width: '100%'}}>
+      <div className="spinner-grow" style={{width: '3rem', height: '3rem'}} role="status">
+        <span className="sr-only">Loading...</span>
+      </div>
+    </div>
+  )
+}
+
+function Card ({content, source}) {
+
+  const contentData: IJobs = content
+  const cardStyle = {
+    padding: '5px'
+  }
+
+  if (source === 'catho')
+  {
+    const date = new Date(contentData.job_updated_at)
+    const published_at = date.toLocaleDateString()
+    return (
+      <div className="col-lg-3 col-md-6 col-sm-12" style={cardStyle}>
+        <div className="card border-success">
+          <div className="card-body text-left">
+            <h5 className="card-title text-center"><strong>{contentData.title}</strong></h5>
+            <p className="card-text">{contentData.description}</p>
+            <p className="card-text"><strong>Faixa salárial: </strong>{contentData.pay_scale}</p>
+            <p className="card-text"><strong>Data de publicação: </strong>{published_at}</p>
+
+            <a href="#" src={contentData.url} className="btn btn-danger">Candidate-se</a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  else if (source == 'programathor')
+  {
+      const description: string = contentData.job_details?.join(', ')
+      return (
+        <div className="col-lg-3 col-md-6 col-sm-12" style={cardStyle}>
+          <div className="card border-success">
+            <div className="card-body text-left">
+              <h5 className="card-title text-center"><strong>{contentData.title}</strong></h5>
+              <p className="card-text">{description}</p>
+  
+              <a href="#" src={contentData.url} className="btn btn-danger">Candidate-se</a>
+            </div>
+          </div>
+        </div>
+    )
+  }
+}
 
 function Home () {
 
+  const [data, setData] = useState({})
+
   useEffect(() => {
     request()
-  }, [3])
+  }, [1])
 
   async function request  ()  {
-    const req = new HttpClient();
-    const foo = await req.getRequest('programathor/list-jobs');
-    console.log(foo)
-  } 
+    const fetchData = new HttpClient();
+    const response = await fetchData.getRequest('jobs/list-all-jobs');
+    const responseData: IData = response.data
+    setData(responseData);
+    responseData.programathor
+  }
+
+  function renderCardContent() {
+    // verifica se o retorno foi o esperado
+    if (data.catho) {
+      const content: JobsList = [
+        ...data.catho,
+        ...data.programathor
+      ]
+
+      return content.map((value: IJobs, index: number) => {
+        // Verifica se o dado retornado é com os dados do Catho ou Programathor
+        if (value.job_updated_at){
+          return (
+            <Card content={value} source={'catho'}/>
+          )
+        } else {
+          return (
+            <Card content={value} source={'programathor'}/>
+          )
+        }
+      })
+    }
+  }
 
   return (
-    <main className="container-fluid mycover">
+    <main className="container-fluid mycover text-center">
       <section className="jumbotron">
         <h1 className="display-4">Kouhai</h1>
         <p className="lead">Encontre seu job no mundo PHP.</p>
@@ -25,30 +107,16 @@ function Home () {
         </p>
       </section>
 
+
       <section>
         <div style={{margin: '30px'}}>
           <h1 className='text-center'> Vagas </h1>
         </div>
         <section className="container-fluid">
           <div className="row">
-            <div className="col-sm-6">
-              <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title">Special title treatment</h5>
-                  <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                  <a href="#" className="btn btn-primary">Go somewhere</a>
-                </div>
-              </div>
-            </div>
-            <div className="col-sm-6">
-              <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title">Special title treatment</h5>
-                  <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                  <a href="#" className="btn btn-primary">Go somewhere</a>
-                </div>
-              </div>
-            </div>
+            {
+              data ? renderCardContent() : <Modal />
+            }
           </div>
         </section>
       </section>
