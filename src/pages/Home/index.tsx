@@ -1,5 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
-import React, { ReactElement, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import HttpClient from '../../services/HttpClient'
 import { IData, IJobs, JobsList } from '../../types'
 
@@ -26,14 +25,15 @@ function Card ({content, source}) {
     const published_at = date.toLocaleDateString()
     return (
       <div className="col-lg-3 col-md-6 col-sm-12" style={cardStyle}>
-        <div className="card border-success">
+        <div className="card border-success mycard">
           <div className="card-body text-left">
             <h5 className="card-title text-center"><strong>{contentData.title}</strong></h5>
             <p className="card-text">{contentData.description}</p>
             <p className="card-text"><strong>Faixa salárial: </strong>{contentData.pay_scale}</p>
             <p className="card-text"><strong>Data de publicação: </strong>{published_at}</p>
-
-            <a href="#" src={contentData.url} className="btn btn-danger">Candidate-se</a>
+            <div className='text-center'>
+              <a href={contentData.url} target="_blank" className="btn btn-danger">Candidate-se</a>
+            </div>
           </div>
         </div>
       </div>
@@ -43,13 +43,14 @@ function Card ({content, source}) {
   {
       const description: string = contentData.job_details?.join(', ')
       return (
-        <div className="col-lg-3 col-md-6 col-sm-12" style={cardStyle}>
-          <div className="card border-success">
+        <div className="col-lg-3 col-md-6 col-sm-12 " style={cardStyle}>
+          <div className="card border-success mycard">
             <div className="card-body text-left">
               <h5 className="card-title text-center"><strong>{contentData.title}</strong></h5>
               <p className="card-text">{description}</p>
-  
-              <a href="#" src={contentData.url} className="btn btn-danger">Candidate-se</a>
+              <div className='text-center'>
+              <a href={contentData.url} target="_blank" className="btn btn-danger">Candidate-se</a>
+            </div>  
             </div>
           </div>
         </div>
@@ -70,7 +71,6 @@ function Home () {
     const response = await fetchData.getRequest('jobs/list-all-jobs');
     const responseData: IData = response.data
     setData(responseData);
-    responseData.programathor
   }
 
   function renderCardContent() {
@@ -80,39 +80,41 @@ function Home () {
         ...data.catho,
         ...data.programathor
       ]
-
       return content.map((value: IJobs, index: number) => {
         // Verifica se o dado retornado é com os dados do Catho ou Programathor
-        if (value.job_updated_at){
-          return (
-            <Card content={value} source={'catho'}/>
-          )
-        } else {
-          return (
-            <Card content={value} source={'programathor'}/>
-          )
+        console.log(value)
+        if (value != null) {
+          if (value.job_updated_at){
+            return (
+              <Card content={value} source={'catho'}/>
+            )
+          } else {
+            return (
+              <Card content={value} source={'programathor'}/>
+            )
+          }
         }
       })
     }
   }
 
   return (
-    <main className="container-fluid mycover text-center">
-      <section className="jumbotron">
+    <main className="container-fluid mycover text-center ">
+      <section className="jumbotron text-light mycover__section">
         <h1 className="display-4">Kouhai</h1>
         <p className="lead">Encontre seu job no mundo PHP.</p>
         <p>Encontre vagas para desenvolvedores PHP Júnior em diversas plataformas de empregos.</p>
         <p className="lead">
-        <a className="btn btn-danger btn-lg" href="#" role="button">Encontre seu job</a>
+        <a className="btn btn-danger btn-lg" href="#jobs" role="button">Encontre seu job</a>
         </p>
       </section>
 
 
-      <section>
+      <section >
         <div style={{margin: '30px'}}>
           <h1 className='text-center'> Vagas </h1>
         </div>
-        <section className="container-fluid">
+        <section className="container-fluid" id="jobs">
           <div className="row">
             {
               data ? renderCardContent() : <Modal />
