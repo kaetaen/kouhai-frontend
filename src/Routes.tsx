@@ -7,15 +7,17 @@ import {
 
 import Home from './pages/Home'
 import Menu from './components/Menu'
+import Footer from './components/Footer'
 
 
 function AppRoutes () {
   return (
     <Router>
       <Menu/>
-      <Routes>
-        <Route exact={true} path='/' element={< Home/>} />
-      </Routes>
+        <Routes>
+          <Route exact={true} path='/' element={< Home/>} />
+        </Routes>
+      <Footer/>
     </Router>
   )
 }
